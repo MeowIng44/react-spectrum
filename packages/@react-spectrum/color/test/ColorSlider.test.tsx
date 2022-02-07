@@ -20,32 +20,21 @@ import userEvent from '@testing-library/user-event';
 describe('ColorSlider', () => {
   let onChangeSpy = jest.fn();
   let onChangeEndSpy = jest.fn();
-
-  afterEach(() => {
-    onChangeSpy.mockClear();
-    onChangeEndSpy.mockClear();
-  });
-
+  
   beforeAll(() => {
     jest.spyOn(window.HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(() => 100);
     jest.spyOn(window.HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(() => 100);
     // @ts-ignore
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => setTimeout(cb, 0));
-    jest.useFakeTimers();
-  });
-  afterAll(() => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => setTimeout(cb, 0));
     // @ts-ignore
-    window.HTMLElement.prototype.offsetWidth.mockReset();
-    // @ts-ignore
-    window.HTMLElement.prototype.offsetHeight.mockReset();
-    jest.useRealTimers();
-    // @ts-ignore
-    window.requestAnimationFrame.mockReset();
+    jest.useFakeTimers('legacy');
   });
 
   afterEach(() => {
+    onChangeSpy.mockClear();
+    onChangeEndSpy.mockClear();
     // for restoreTextSelection
-    jest.runAllTimers();
+    act(() => {jest.runAllTimers();});
   });
 
   it('sets input props', () => {

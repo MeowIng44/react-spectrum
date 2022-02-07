@@ -18,7 +18,7 @@ import MoreSmall from '@spectrum-icons/workflow/MoreSmall';
 import NoSearchResults from '@spectrum-icons/illustrations/src/NoSearchResults';
 import React, {useEffect, useState} from 'react';
 import {storiesOf} from '@storybook/react';
-
+import {useAsyncList} from '@react-stately/data';
 
 function renderEmptyState() {
   return (
@@ -118,6 +118,16 @@ storiesOf('ListView', module)
       {[]}
     </ListView>
   ))
+  .add('loadingMore', () => (
+    <ListView width="300px" height="300px" loadingState="loadingMore">
+      <Item textValue="row 1">row 1</Item>
+      <Item textValue="row 2">row 2</Item>
+      <Item textValue="row 3">row 3</Item>
+    </ListView>
+  ))
+  .add('async listview loading', () => (
+    <AsyncList />
+  ))
   .add('density: compact', () => (
     <ListView width="250px" density="compact">
       <Item textValue="row 1">row 1</Item>
@@ -204,17 +214,17 @@ storiesOf('ListView', module)
     )))
   .add('dynamic items + renderEmptyState', () => (<EmptyTest />))
   .add('selectionStyle: highlight', () => (
-    <ListView width="250px" height={400} selectionStyle="highlight" selectionMode="multiple" items={[...Array(20).keys()].map(k => ({key: k, name: `Item ${k}`}))}>
+    <ListView width="250px" height={400} onSelectionChange={action('onSelectionChange')} selectionStyle="highlight" selectionMode="multiple" items={[...Array(20).keys()].map(k => ({key: k, name: `Item ${k}`}))}>
       {item => <Item>{item.name}</Item>}
     </ListView>
   ))
   .add('selectionStyle: highlight, onAction', () => (
-    <ListView width="250px" height={400} selectionStyle="highlight" selectionMode="multiple" items={[...Array(20).keys()].map(k => ({key: k, name: `Item ${k}`}))} onAction={action('onAction')}>
+    <ListView width="250px" height={400} onSelectionChange={action('onSelectionChange')} selectionStyle="highlight" selectionMode="multiple" items={[...Array(20).keys()].map(k => ({key: k, name: `Item ${k}`}))} onAction={action('onAction')}>
       {item => <Item>{item.name}</Item>}
     </ListView>
   ))
   .add('selectionMode: none, onAction', () => (
-    <ListView width="250px" height={400} selectionMode="none" items={[...Array(20).keys()].map(k => ({key: k, name: `Item ${k}`}))} onAction={action('onAction')}>
+    <ListView width="250px" height={400} onSelectionChange={action('onSelectionChange')} selectionMode="none" items={[...Array(20).keys()].map(k => ({key: k, name: `Item ${k}`}))} onAction={action('onAction')}>
       {item => <Item>{item.name}</Item>}
     </ListView>
   ));
@@ -348,5 +358,43 @@ function EmptyTest() {
         </div>
       </Flex>
     </div>
+  );
+}
+
+function AsyncList() {
+  interface StarWarsChar {
+    name: string,
+    url: string
+  }
+
+  let list = useAsyncList<StarWarsChar>({
+    async load({signal, cursor}) {
+      if (cursor) {
+        cursor = cursor.replace(/^http:\/\//i, 'https://');
+      }
+
+      // Slow down load so progress circle can appear
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      let res = await fetch(cursor || 'https://swapi.py4e.com/api/people/?search=', {signal});
+      let json = await res.json();
+      return {
+        items: json.results,
+        cursor: json.next
+      };
+    }
+  });
+  return (
+    <ListView
+      selectionMode="multiple"
+      aria-label="example async loading list"
+      width="size-6000"
+      height="size-3000"
+      items={list.items}
+      loadingState={list.loadingState}
+      onLoadMore={list.loadMore}>
+      {(item) => (
+        <Item key={item.name} textValue={item.name}>{item.name}</Item>
+      )}
+    </ListView>
   );
 }

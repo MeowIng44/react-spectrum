@@ -271,84 +271,84 @@ describe('ColorSlider', () => {
       act(() => {slider.focus();});
 
       fireEvent.keyDown(slider, {key: 'Right'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(1);
       expect(onChangeSpy.mock.calls[0][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 1).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(1);
       expect(onChangeEndSpy.mock.calls[0][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 1).toString('hexa'));
       
       fireEvent.keyDown(slider, {key: 'Left'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(2);
       expect(onChangeSpy.mock.calls[1][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(2);
       expect(onChangeEndSpy.mock.calls[1][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
 
       fireEvent.keyDown(slider, {key: 'PageUp'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(3);
       expect(onChangeSpy.mock.calls[2][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 16).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(3);
       expect(onChangeEndSpy.mock.calls[2][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 16).toString('hexa'));
 
       fireEvent.keyDown(slider, {key: 'Right'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(4);
       expect(onChangeSpy.mock.calls[3][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 17).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(4);
       expect(onChangeEndSpy.mock.calls[3][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 17).toString('hexa'));
        
       fireEvent.keyDown(slider, {key: 'PageDown'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(5);
       expect(onChangeSpy.mock.calls[4][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(5);
       expect(onChangeEndSpy.mock.calls[4][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
 
       fireEvent.keyDown(slider, {key: 'End'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(6);
       expect(onChangeSpy.mock.calls[5][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 255).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(6);
       expect(onChangeEndSpy.mock.calls[5][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 255).toString('hexa'));
 
       fireEvent.keyDown(slider, {key: 'End'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(6);
       expect(onChangeSpy.mock.calls[5][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 255).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(6);
       expect(onChangeEndSpy.mock.calls[5][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 255).toString('hexa'));
       
       fireEvent.keyDown(slider, {key: 'PageUp'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(6);
       expect(onChangeSpy.mock.calls[5][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 255).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(6);
       expect(onChangeEndSpy.mock.calls[5][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 255).toString('hexa'));
 
       fireEvent.keyDown(slider, {key: 'PageDown'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(7);
       expect(onChangeSpy.mock.calls[6][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 240).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(7);
       expect(onChangeEndSpy.mock.calls[6][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 240).toString('hexa'));
 
       fireEvent.keyDown(slider, {key: 'Home'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(8);
       expect(onChangeSpy.mock.calls[7][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(8);
       expect(onChangeEndSpy.mock.calls[7][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
 
       fireEvent.keyDown(slider, {key: 'Home'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(8);
       expect(onChangeSpy.mock.calls[7][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(8);
       expect(onChangeEndSpy.mock.calls[7][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
 
       fireEvent.keyDown(slider, {key: 'PageDown'});
-      act(() => jest.runAllTimers());
+      act(() => {jest.runAllTimers();});
       expect(onChangeSpy).toHaveBeenCalledTimes(8);
       expect(onChangeSpy.mock.calls[7][0].toString('hexa')).toBe(defaultColor.withChannelValue('red', 0).toString('hexa'));
       expect(onChangeEndSpy).toHaveBeenCalledTimes(8);

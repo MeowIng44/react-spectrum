@@ -4,9 +4,9 @@ import {getSliderThumbId, sliderIds} from './utils';
 import React, {ChangeEvent, HTMLAttributes, InputHTMLAttributes, LabelHTMLAttributes, RefObject, useCallback, useEffect, useRef} from 'react';
 import {SliderState} from '@react-stately/slider';
 import {useFocusable} from '@react-aria/focus';
+import {useKeyboard, useMove} from '@react-aria/interactions';
 import {useLabel} from '@react-aria/label';
 import {useLocale} from '@react-aria/i18n';
-import {useMove} from '@react-aria/interactions';
 
 interface SliderThumbAria {
   /** Props for the root thumb element; handles the dragging motion. */
@@ -77,22 +77,76 @@ export function useSliderThumb(
   stateRef.current = state;
   let reverseX = direction === 'rtl';
   let currentPosition = useRef<number>(null);
+
+  let {keyboardProps} = useKeyboard({
+    onKeyDown(e) {
+      let {
+        getThumbMaxValue,
+        getThumbMinValue,
+        pageSize
+      } = stateRef.current;
+      // these are the cases that useMove or useSlider don't handle
+      if (!/^(PageUp|PageDown|Home|End)$/.test(e.key)) {
+        e.continuePropagation();
+        return;
+      }
+      // same handling as useMove, stopPropagation to prevent useSlider from handling the event as well.
+      e.preventDefault();
+      // remember to set this so that onChangeEnd is fired
+      state.setThumbDragging(index, true);
+      switch (e.key) {
+        case 'PageUp':
+          stateRef.current.incrementThumb(index, pageSize);
+          break;
+        case 'PageDown':
+          stateRef.current.decrementThumb(index, pageSize);
+          break;
+        case 'Home':
+          state.setThumbValue(index, getThumbMinValue(index));
+          break;
+        case 'End':
+          state.setThumbValue(index, getThumbMaxValue(index));
+          break;
+      }
+      state.setThumbDragging(index, false);
+    }
+  });
+
   let {moveProps} = useMove({
     onMoveStart() {
       currentPosition.current = null;
-      state.setThumbDragging(index, true);
+      stateRef.current.setThumbDragging(index, true);
     },
-    onMove({deltaX, deltaY, pointerType}) {
+    onMove({deltaX, deltaY, pointerType, shiftKey}) {
+      const {
+        getThumbPercent,
+        setThumbPercent,
+        step,
+        pageSize
+      } = stateRef.current;
       let size = isVertical ? trackRef.current.offsetHeight : trackRef.current.offsetWidth;
 
       if (currentPosition.current == null) {
-        currentPosition.current = stateRef.current.getThumbPercent(index) * size;
+        currentPosition.current = getThumbPercent(index) * size;
       }
       if (pointerType === 'keyboard') {
-        // (invert left/right according to language direction) + (according to vertical)
-        let delta = ((reverseX ? -deltaX : deltaX) + (isVertical ? -deltaY : -deltaY)) * stateRef.current.step;
-        currentPosition.current += delta * size;
-        stateRef.current.setThumbValue(index, stateRef.current.getThumbValue(index) + delta);
+        if (deltaX > 0) {
+          if (reverseX) {
+            stateRef.current.decrementThumb(index, shiftKey ? pageSize : step);
+          } else {
+            stateRef.current.incrementThumb(index, shiftKey ? pageSize : step);
+          }
+        } else if (deltaY < 0) {
+          stateRef.current.incrementThumb(index, shiftKey ? pageSize : step);
+        } else if (deltaX < 0) {
+          if (reverseX) {
+            stateRef.current.incrementThumb(index, shiftKey ? pageSize : step);
+          } else {
+            stateRef.current.decrementThumb(index, shiftKey ? pageSize : step);
+          }
+        } else if (deltaY > 0) {
+          stateRef.current.decrementThumb(index, shiftKey ? pageSize : step);
+        }
       } else {
         let delta = isVertical ? deltaY : deltaX;
         if (isVertical || reverseX) {
@@ -100,11 +154,11 @@ export function useSliderThumb(
         }
 
         currentPosition.current += delta;
-        stateRef.current.setThumbPercent(index, clamp(currentPosition.current / size, 0, 1));
+        setThumbPercent(index, clamp(currentPosition.current / size, 0, 1));
       }
     },
     onMoveEnd() {
-      state.setThumbDragging(index, false);
+      stateRef.current.setThumbDragging(index, false);
     }
   });
 
@@ -161,10 +215,11 @@ export function useSliderThumb(
       'aria-invalid': validationState === 'invalid' || undefined,
       'aria-errormessage': opts['aria-errormessage'],
       onChange: (e: ChangeEvent<HTMLInputElement>) => {
-        state.setThumbValue(index, parseFloat(e.target.value));
+        stateRef.current.setThumbValue(index, parseFloat(e.target.value));
       }
     }),
     thumbProps: !isDisabled ? mergeProps(
+      keyboardProps,
       moveProps,
       {
         onMouseDown: (e: React.MouseEvent<HTMLElement>) => {
